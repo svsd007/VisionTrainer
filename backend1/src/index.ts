@@ -1,5 +1,11 @@
-import { Piece } from "./board.js";
+import { Piece, board, type PieceColor, type PieceType} from "./board.js";
 
-const queen = new Piece("white", "queen");
 
-console.log(queen);
+const p1: PieceType  = "pawn";
+let  p1color: PieceColor = "black";
+
+
+
+const pawn1 = new Piece(p1color, p1);
+
+console.log(pawn1);

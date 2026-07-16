@@ -24,3 +24,15 @@ export class Piece {
 
 
 export const board = new Map<string, Piece>();
+
+export function addPiece(square: string, piece: Piece){
+    board.set(square, piece)
+}
+
+export function removePiece(square: string){
+    board.delete(square)
+}
+
+export function getPiece(square: string){
+    return board.get(square)
+}
