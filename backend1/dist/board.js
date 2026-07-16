@@ -16,4 +16,33 @@ export function removePiece(square) {
 export function getPiece(square) {
     return board.get(square);
 }
+const files = ["a", "b", "c", "d", "e", "f", "g", "h"];
+export function createBoard() {
+    const htmlboard = document.getElementById("board");
+    for (let i = 8; i > 0; i--) {
+        for (const file of files) {
+            const piece = getPiece(file + i);
+            let square_color = "black";
+            // Logic: get letter position, ie A-> 1, B -> 2
+            // if letterposition + row is even then the square is black else is white
+            const letterposition = file.charCodeAt(0) - 64;
+            if ((letterposition + i) % 2 === 0) {
+                square_color = "black";
+            }
+            else {
+                square_color = "white";
+            }
+            if (piece === undefined) {
+                const square = document.createElement("div");
+                square.classList.add(square_color + "-square");
+                htmlboard?.append(square);
+            }
+            else {
+                const square = document.createElement("div");
+                square.classList.add(square_color + "-square");
+                htmlboard?.append(square);
+            }
+        }
+    }
+}
 //# sourceMappingURL=board.js.map
