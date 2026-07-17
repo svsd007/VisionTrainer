@@ -1,4 +1,4 @@
-export type PieceColor = "white" | "black";
+export type PieceColor = "w" | "b";
 export type PieceType = "pawn" | "rook" | "bishop" | "knight" | "king" | "queen";
 export declare class Piece {
     color: PieceColor;

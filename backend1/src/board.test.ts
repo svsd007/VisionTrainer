@@ -6,15 +6,15 @@ beforeEach(() => {
 })
 describe("Piece", () => {
     test("creates a white queen", () => {
-        const queen = new Piece("white", "queen");
+        const queen = new Piece("w", "queen");
 
-        expect(queen.color).toBe("white");
+        expect(queen.color).toBe("w");
         expect(queen.type).toBe("queen");
     });
 
 describe("Board", () => {
     test("creates a board", () => {
-        const queen1 = new Piece("white", "queen");
+        const queen1 = new Piece("w", "queen");
 
         expect(board.size).toBe(0);
         

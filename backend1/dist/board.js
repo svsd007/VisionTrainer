@@ -25,7 +25,7 @@ export function createBoard() {
             let square_color = "black";
             // Logic: get letter position, ie A-> 1, B -> 2
             // if letterposition + row is even then the square is black else is white
-            const letterposition = file.charCodeAt(0) - 64;
+            const letterposition = file.charCodeAt(0) - 96;
             if ((letterposition + i) % 2 === 0) {
                 square_color = "black";
             }
@@ -40,6 +40,11 @@ export function createBoard() {
             else {
                 const square = document.createElement("div");
                 square.classList.add(square_color + "-square");
+                const selectedPieceType = piece?.type;
+                const selectedPiece = document.createElement("img");
+                selectedPiece.classList.add("piece");
+                selectedPiece.src = `../backend1/assets/pieces-basic-svg/${selectedPieceType}-${piece.color}.svg`;
+                square.append(selectedPiece);
                 htmlboard?.append(square);
             }
         }

@@ -1,6 +1,6 @@
 
 
-export type PieceColor = "white" | "black"
+export type PieceColor = "w" | "b"
 export type PieceType = 
     | "pawn"
     | "rook"
@@ -54,12 +54,15 @@ export function createBoard() {
 
             // Logic: get letter position, ie A-> 1, B -> 2
             // if letterposition + row is even then the square is black else is white
-            const letterposition = file.charCodeAt(0) - 64;
+            const letterposition = file.charCodeAt(0) - 96;
             if ((letterposition + i) % 2 === 0) {
                 square_color = "black";
 
+
             }  else {
                 square_color = "white";
+
+                
             }
 
 
@@ -74,7 +77,15 @@ export function createBoard() {
             } else {
                 const square = document.createElement("div")
                 square.classList.add(square_color + "-square");
-                htmlboard?.append(square)
+                
+
+                const selectedPieceType: string = piece?.type;
+                const selectedPiece = document.createElement("img");
+                selectedPiece.classList.add("piece");
+                
+                selectedPiece.src = `../backend1/assets/pieces-basic-svg/${selectedPieceType}-${piece.color}.svg`;
+                square.append(selectedPiece);
+                htmlboard?.append(square);
                 
             }
 
