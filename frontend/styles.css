@@ -1,3 +1,6 @@
+
+
+
 #board {
     display: grid;
     grid-template-columns: repeat(8, 60px);
@@ -25,7 +28,7 @@ a {
 
     width: 60px;
     height: 60px;
-    background-color:#8376BA;
+    background-color:#B58863;
 }
 
 
@@ -33,7 +36,7 @@ a {
     
     width: 60px;
     height: 60px;
-    background-color: #EBECD0;
+    background-color: #F0D9B5;
 
  
 

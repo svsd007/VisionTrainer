@@ -6,12 +6,15 @@
   "scripts": {
     "test": "vitest"
   },
-  
   "keywords": [],
   "author": "",
   "license": "ISC",
   "type": "module",
   "devDependencies": {
+    "@types/node": "^26.1.1",
     "vitest": "^4.1.10"
+  },
+  "dependencies": {
+    "chess.js": "^1.4.0"
   }
 }

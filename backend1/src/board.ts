@@ -65,9 +65,6 @@ export function createBoard() {
                 
             }
 
-
-
-
             if (piece === undefined) {
                 const square = document.createElement("div")
                 square.classList.add(square_color + "-square");
