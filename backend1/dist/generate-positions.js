@@ -3,8 +3,12 @@ import fs from "fs";
 import readline from "readline";
 import { Piece, addPiece, board, createBoard } from "./board.js";
 import { json } from "stream/consumers";
+// Database of games
 const pospath = "./data/raw/LumbrasGigaBase_OTB_ELO2400.pgn";
+// Processed postion 
 const outputPath = "./data/processed/positions.jsonl";
+// OLD DESIGN :
+// --------------------------------------------------------------------------
 // const testpgn = fs.readFileSync(testpgnpath, "utf-8");
 // export class Position {
 //     board: string[]
@@ -16,15 +20,25 @@ const outputPath = "./data/processed/positions.jsonl";
 //         this.b_player = b_player;
 //     }
 // }
+// ---------------------------------------------------------------------------
+// the output file is first emptied
 fs.writeFileSync(outputPath, "", "utf-8");
 let positions = [];
+// Creates a read stream. This reads line by line
 const stream = fs.createReadStream(pospath, { encoding: "utf-8" });
+// Read 1 is the interface we use to read the lines
 const read1 = readline.createInterface({
     input: stream,
     crlfDelay: Infinity
 });
+// Initialize variables
 let currentgame = "";
 let numpositions = 0;
+// The for loop below reads the PGNs in raw data.
+// It adds each line to currengame and finishes the current game if it ends with 1-0 or something similar
+// This PGN is readable by chess.js and we use that to save an instance of a readable game
+// We then add the position to savedPositions and wait until we have 1k positions to push to the saved
+// This is because writes from discs are kinda expensive and its better to push a huge chunk at a time
 for await (const line of read1) {
     currentgame += line + "\n";
     let trimmedline = line.trim();
@@ -64,6 +78,9 @@ for await (const line of read1) {
     }
 }
 pushgames();
+// REQURIES: wheader and bheader not be null;
+// EFFECTS: creates a filtered board without nulls so easier to read later on. Adds the saved position
+// to savedPositions. Nd pushes positions to poositons.jsonl if positions.length is 1000
 function savegame(game, wheader, bheader) {
     const board = game.board().flatMap(rank => rank.filter(square => square !== null));
     //const w_player = game.getHeaders()["White"];
@@ -82,15 +99,17 @@ function savegame(game, wheader, bheader) {
         pushgames();
     }
 }
+// Pushes games through json.stringify to positions.jsonl
 function pushgames() {
     if (positions.length === 0) {
         return;
     }
-    //push positions
+    // Dummy variable to combine all positions
     let bigString = "";
     for (const position of positions) {
         bigString = bigString + JSON.stringify(position) + "\n";
     }
+    // Adds the bigstring of all games to positions.jsonl. each line is still a seperate object.
     fs.appendFileSync(outputPath, bigString, "utf-8");
     //reset positions
     positions = [];

@@ -1,5 +1,4 @@
-
-
+﻿
 
 #board {
     display: grid;
@@ -18,6 +17,11 @@
   user-select: none;
   
   
+}
+
+.piece.dragging {
+    cursor: grabbing;
+    opacity: 0.6;
 }
 
 a {
@@ -43,4 +47,9 @@ a {
     background-color: #F0D9B5;
  
 
+}
+
+.drop-target {
+    outline: 3px solid #6aa84f;
+    outline-offset: -3px;
 }

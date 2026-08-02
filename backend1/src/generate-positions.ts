@@ -6,10 +6,15 @@ import { json } from "stream/consumers";
 type ChessBoard = ReturnType<Chess["board"]>;
 type ChessSquare = NonNullable<ChessBoard[number][number]>;
 
-
+// Database of games
 const pospath: string = "./data/raw/LumbrasGigaBase_OTB_ELO2400.pgn";
-
+// Processed postion 
 const outputPath = "./data/processed/positions.jsonl";
+
+
+
+// OLD DESIGN :
+// --------------------------------------------------------------------------
 // const testpgn = fs.readFileSync(testpgnpath, "utf-8");
 
 // export class Position {
@@ -25,9 +30,18 @@ const outputPath = "./data/processed/positions.jsonl";
 
 //     }
 // }
+// ---------------------------------------------------------------------------
 
+
+// the output file is first emptied
 fs.writeFileSync(outputPath, "", "utf-8");
 
+
+// This interface, savedPosition:
+// w-player is white player
+// b-player is black player
+// board is what chess.js.board returns for the given position.
+// each line in positions.jsonl is a chessgame object. Look at "./data/processed/positions.jsonl for example
 interface SavedPosition {
 
     w_player: string;
@@ -35,13 +49,15 @@ interface SavedPosition {
     board: ChessSquare[];
 
 }
+
+
 let positions: SavedPosition[] = [];
 
 
 
-
+// Creates a read stream. This reads line by line
 const stream = fs.createReadStream(pospath, { encoding: "utf-8" });
-
+// Read 1 is the interface we use to read the lines
 const read1 = readline.createInterface({
     input: stream,
     crlfDelay: Infinity
@@ -50,14 +66,16 @@ const read1 = readline.createInterface({
 
 
 
-
+// Initialize variables
 let currentgame: string = "";
 let numpositions = 0;
 
 
-
-
-
+// The for loop below reads the PGNs in raw data.
+// It adds each line to currengame and finishes the current game if it ends with 1-0 or something similar
+// This PGN is readable by chess.js and we use that to save an instance of a readable game
+// We then add the position to savedPositions and wait until we have 1k positions to push to the saved
+// This is because writes from discs are kinda expensive and its better to push a huge chunk at a time
 for await (const line of read1) {
 
     currentgame += line + "\n"
@@ -127,7 +145,9 @@ pushgames();
 
 
 
-
+// REQURIES: wheader and bheader not be null;
+// EFFECTS: creates a filtered board without nulls so easier to read later on. Adds the saved position
+// to savedPositions. Nd pushes positions to poositons.jsonl if positions.length is 1000
 function savegame(game: Chess, wheader: string, bheader: string) {
     const board = game.board().flatMap(rank => rank.filter(square => square !== null));
     //const w_player = game.getHeaders()["White"];
@@ -154,13 +174,16 @@ function savegame(game: Chess, wheader: string, bheader: string) {
 }
 
 
+
+// Pushes games through json.stringify to positions.jsonl
 function pushgames() {
 
 
     if (positions.length === 0) {
         return;  
     }
-    //push positions
+
+    // Dummy variable to combine all positions
     let bigString = "";
 
     for (const position of positions) {
@@ -168,6 +191,7 @@ function pushgames() {
 
     }
 
+    // Adds the bigstring of all games to positions.jsonl. each line is still a seperate object.
     fs.appendFileSync(outputPath,  bigString, "utf-8")
 
     //reset positions
