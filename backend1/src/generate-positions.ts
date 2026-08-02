@@ -7,7 +7,8 @@ type ChessBoard = ReturnType<Chess["board"]>;
 type ChessSquare = NonNullable<ChessBoard[number][number]>;
 
 
-const testpath: string = "./data/raw/testgames.pgn";
+const pospath: string = "./data/raw/LumbrasGigaBase_OTB_ELO2400.pgn";
+
 const outputPath = "./data/processed/positions.jsonl";
 // const testpgn = fs.readFileSync(testpgnpath, "utf-8");
 
@@ -39,7 +40,7 @@ let positions: SavedPosition[] = [];
 
 
 
-const stream = fs.createReadStream(testpath, { encoding: "utf-8" });
+const stream = fs.createReadStream(pospath, { encoding: "utf-8" });
 
 const read1 = readline.createInterface({
     input: stream,
@@ -110,7 +111,7 @@ for await (const line of read1) {
         
     }
 
-    if (numpositions >= 5) {
+    if (numpositions >= 5000) {
         pushgames();
         break;
     }

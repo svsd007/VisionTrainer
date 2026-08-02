@@ -3,7 +3,7 @@ import fs from "fs";
 import readline from "readline";
 import { Piece, addPiece, board, createBoard } from "./board.js";
 import { json } from "stream/consumers";
-const testpath = "./data/raw/testgames.pgn";
+const pospath = "./data/raw/LumbrasGigaBase_OTB_ELO2400.pgn";
 const outputPath = "./data/processed/positions.jsonl";
 // const testpgn = fs.readFileSync(testpgnpath, "utf-8");
 // export class Position {
@@ -18,7 +18,7 @@ const outputPath = "./data/processed/positions.jsonl";
 // }
 fs.writeFileSync(outputPath, "", "utf-8");
 let positions = [];
-const stream = fs.createReadStream(testpath, { encoding: "utf-8" });
+const stream = fs.createReadStream(pospath, { encoding: "utf-8" });
 const read1 = readline.createInterface({
     input: stream,
     crlfDelay: Infinity
@@ -58,7 +58,7 @@ for await (const line of read1) {
             currentgame = "";
         }
     }
-    if (numpositions >= 5) {
+    if (numpositions >= 5000) {
         pushgames();
         break;
     }

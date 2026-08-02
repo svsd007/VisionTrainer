@@ -6,13 +6,17 @@
     grid-template-columns: repeat(8, 60px);
     justify-content: center;
     align-items: center;
+    user-select: none;
 
 
 }
 
 .piece {
   max-width: 100%; 
-  height: auto;  
+  height: auto; 
+  cursor: grab;
+  user-select: none;
+  
   
 }
 
@@ -37,7 +41,6 @@ a {
     width: 60px;
     height: 60px;
     background-color: #F0D9B5;
-
  
 
 }

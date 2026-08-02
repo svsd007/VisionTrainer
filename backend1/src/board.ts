@@ -79,6 +79,11 @@ export function createBoard() {
                 const selectedPieceType: string = piece?.type;
                 const selectedPiece = document.createElement("img");
                 selectedPiece.classList.add("piece");
+                selectedPiece.draggable = true;
+
+                selectedPiece.addEventListener("dragstart", () => {
+                    console.log("dragging piece");
+                });
                 
                 selectedPiece.src = `../backend1/assets/pieces-basic-svg/${selectedPieceType}-${piece.color}.svg`;
                 square.append(selectedPiece);
