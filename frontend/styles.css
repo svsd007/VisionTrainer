@@ -40,6 +40,10 @@ a {
 }
 
 
+.game-title {
+    font-family: 'Courier New', Courier, monospace;
+}
+
 .white-square{
     
     width: 60px;

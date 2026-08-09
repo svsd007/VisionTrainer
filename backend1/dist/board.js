@@ -91,4 +91,8 @@ export function createBoard() {
         }
     }
 }
+export function jsontoboard(board, w_player, b_player) {
+    const title = document.getElementById("game-title");
+    // title?.innerText = ""; 
+}
 //# sourceMappingURL=board.js.map

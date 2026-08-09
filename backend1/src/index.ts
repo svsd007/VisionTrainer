@@ -1,8 +1,8 @@
-import { Piece, addPiece, board, createBoard, type PieceColor, type PieceType} from "./board.js";
-import fs from "fs";
-import readline from "readline";
-import { json } from "stream/consumers";
-import { compileFunction } from "vm";
+import { Piece, addPiece, board, createBoard, jsontoboard, type PieceColor, type PieceType} from "./board.js";
+//import fs from "fs";
+//import readline from "readline";
+// import { json } from "stream/consumers";
+// import { compileFunction } from "vm";
 // const p1: PieceType  = "pawn";
 // let  p1color: PieceColor = "w";
 // let  p2color: PieceColor = "b";
@@ -44,58 +44,149 @@ import { compileFunction } from "vm";
 // addPiece("f1", new Piece(p1color, "bishop"));
 // addPiece("a1", new Piece(p1color, "rook"));
 // addPiece("h1", new Piece(p1color, "rook"));
-// // ^ Default board
+
+
+// ^ Default board
 
 // const body = document.body
 // body.append("hello world")
 
 // const div = document.createElement("div")
 // body.append(div)
-const inputPath = "./data/processed/positions.jsonl";
-const indexPath = "./data/processed/positions.idx";
-
-const offsetText = fs.readFileSync(indexPath, "utf-8");
-
-const offsets = offsetText
-    .split("\n")
-    .filter((line) => line !== "")
-    .map(Number);
 
 
-const randomIndex = Math.floor(Math.random() * offsets.length);
-const offsetStart = offsets [randomIndex];
-const offsetEnd = offsets [randomIndex + 1];
 
-if (offsetStart === undefined) {
-    throw new Error("No position offset found");
-}
+// const inputPath = "./data/processed/positions.jsonl";
+// const indexPath = "./data/processed/positions.idx";
 
-console.log("start = " + offsetStart);
-console.log("end = " + offsetEnd);
+// const offsetText = fs.readFileSync(indexPath, "utf-8");
 
-const stream = fs.createReadStream(inputPath, "utf-8");
+// const offsets = offsetText
+//     .split("\n")
+//     .filter((line) => line !== "")
+//     .map(Number);
 
-const read1 = readline.createInterface({
-    input: stream,
-    crlfDelay: Infinity
-})
 
-let currentindex = 0;
-//Why do i have to use await?
-let game = "";
+// const randomIndex = Math.floor(Math.random() * offsets.length);
+// const offsetStart = offsets [randomIndex];
+// const offsetEnd = offsets [randomIndex + 1];
 
-for await (const line of read1) {
+// if (offsetStart === undefined) {
+//     throw new Error("No position offset found");
+// }
 
-    if (offsetStart === currentindex) {
-        game += line;
-        break;
-    } else {
-        currentindex += Buffer.byteLength(line + "\n", "utf-8");
+// if (offsetEnd === undefined) {
+//     throw new Error("No position offset found");
+// }
+
+
+// console.log("start = " + offsetStart);
+// console.log("end = " + offsetEnd);
+
+// const stream = fs.createReadStream(inputPath, "utf-8");
+
+// const read1 = readline.createInterface({
+//     input: stream,
+//     crlfDelay: Infinity
+// })
+
+// let currentindex = 0;
+// //Why do i have to use await?
+// let game = "";
+
+// // for await (const line of read1) {
+
+// //     if (offsetStart === currentindex) {
+// //         game += line;
+// //         break;
+// //     } else {
+// //         currentindex += Buffer.byteLength(line + "\n", "utf-8");
+// //     }
+
+// // }
+
+
+
+// const length = offsetEnd - offsetStart;
+
+// const file = await fs.promises.open(inputPath, "r");
+
+// const buffer = Buffer.alloc(length);
+
+// await file.read(
+//     buffer,
+//     0,
+//     length,
+//     offsetStart
+// );
+
+// await file.close();
+
+// const line = buffer.toString("utf-8").trim();
+
+// console.log(line);
+
+
+// const position = JSON.parse(line);
+
+
+// for (const square of position.board) {
+//     const Ptype = square.type;
+//     let piece: PieceType;
+//     switch (true) {
+//         case (Ptype === "b"):
+//             piece = "bishop";
+//             break;
+//         case (Ptype == "n"):
+//             piece = "knight";
+//             break;
+//         case (Ptype == "k"):
+//             piece = "king";
+//             break;
+//         case (Ptype == "q"):
+//             piece = "queen";
+//             break;
+//         case (Ptype == "r"):
+//             piece = "rook";
+//             break;
+//         case (Ptype == "p"):
+//             piece = "pawn";
+//             break;
+//     }
+//     const thisPiece = new Piece(square.color!, piece!);
+//     addPiece(square.square, thisPiece);
+
+    
+// }
+const response = await fetch("http://localhost:3000/random-position");
+const position = await response.json();
+
+board.clear();
+
+for (const square of position.board) {
+    let piece: PieceType;
+
+    switch (square.type) {
+        case "b": piece = "bishop"; break;
+        case "n": piece = "knight"; break;
+        case "k": piece = "king"; break;
+        case "q": piece = "queen"; break;
+        case "r": piece = "rook"; break;
+        case "p": piece = "pawn"; break;
+        default: continue;
     }
 
+    addPiece(
+        square.square,
+        new Piece(square.color, piece)
+    );
 }
 
-console.log(game);
+
+
+createBoard();
+
+// console.log(game);
 //createBoard();
 
 

@@ -142,3 +142,15 @@ export function createBoard() {
         }
     }
 }
+
+
+
+
+
+export function jsontoboard(board: string, w_player: string, b_player: string) {
+    const title = document.getElementById("game-title");
+    // title?.innerText = ""; 
+
+    
+
+}
