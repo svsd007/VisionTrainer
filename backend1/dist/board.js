@@ -18,6 +18,9 @@ export function removePiece(square) {
 export function getPiece(square) {
     return board.get(square);
 }
+export function getBoard() {
+    return board;
+}
 const files = ["a", "b", "c", "d", "e", "f", "g", "h"];
 let draggedFrom = null;
 // REQUIRES: nothing
@@ -91,8 +94,39 @@ export function createBoard() {
         }
     }
 }
-export function jsontoboard(board, w_player, b_player) {
-    const title = document.getElementById("game-title");
-    // title?.innerText = ""; 
+export function createStock() {
+    const stock = document.getElementById("stock");
+    if (stock === null) {
+        return;
+    }
+    stock.innerHTML = "";
+    const pieceTypes = [
+        "pawn",
+        "knight",
+        "bishop",
+        "rook",
+        "queen",
+        "king"
+    ];
+    let i = 6;
+    for (const pieceType of pieceTypes) {
+        const square = document.createElement("div");
+        if (i % 2 === 0) {
+            square.classList.add("white-square");
+        }
+        else {
+            square.classList.add("black-square");
+        }
+        const image = document.createElement("img");
+        image.classList.add("piece");
+        image.src =
+            `../backend1/assets/pieces-basic-svg/${pieceType}-w.svg`;
+        square.append(image);
+        stock.append(square);
+        i--;
+    }
 }
+//
+//
+//
 //# sourceMappingURL=board.js.map

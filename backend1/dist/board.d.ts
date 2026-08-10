@@ -9,6 +9,7 @@ export declare const board: Map<string, Piece>;
 export declare function addPiece(square: string, piece: Piece): void;
 export declare function removePiece(square: string): void;
 export declare function getPiece(square: string): Piece | undefined;
+export declare function getBoard(): Map<string, Piece>;
 export declare function createBoard(): void;
-export declare function jsontoboard(board: string, w_player: string, b_player: string): void;
+export declare function createStock(): void;
 //# sourceMappingURL=board.d.ts.map

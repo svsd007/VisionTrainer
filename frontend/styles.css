@@ -57,3 +57,11 @@ a {
     outline: 3px solid #c91e9e;
     outline-offset: -3px;
 }
+
+
+#stock {
+    display: grid;
+    grid-template-columns: repeat(6, 60px);
+    justify-content: center;
+    margin-top: 20px;
+}

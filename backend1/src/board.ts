@@ -42,6 +42,10 @@ export function getPiece(square: string){
 
 }
 
+export function getBoard() {
+    return board;
+}
+
 
 
 const files: string[] = ["a", "b", "c", "d", "e", "f", "g", "h"]
@@ -145,12 +149,53 @@ export function createBoard() {
 
 
 
+export function createStock() {
+    const stock = document.getElementById("stock");
 
+    if (stock === null) {
+        return;
+    }
 
-export function jsontoboard(board: string, w_player: string, b_player: string) {
-    const title = document.getElementById("game-title");
-    // title?.innerText = ""; 
+    stock.innerHTML = "";
 
+    const pieceTypes: PieceType[] = [
+        "pawn",
+        "knight",
+        "bishop",
+        "rook",
+        "queen",
+        "king"
+    ];
+
+    let i: number  = 6;
     
+    for (const pieceType of pieceTypes) {
+        const square = document.createElement("div");
+        if (i % 2 === 0) {square.classList.add("white-square");} else {square.classList.add("black-square");}
 
+        const image = document.createElement("img");
+        image.classList.add("piece");
+
+        image.src =
+            `../backend1/assets/pieces-basic-svg/${pieceType}-w.svg`;
+
+        square.append(image);
+        stock.append(square);
+
+
+
+
+        
+    
+        i--;
+    }
 }
+
+
+
+//
+
+
+//
+
+//

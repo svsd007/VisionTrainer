@@ -1,4 +1,4 @@
-import { Piece, addPiece, board, createBoard, jsontoboard, type PieceColor, type PieceType} from "./board.js";
+import { Piece, addPiece, board, createBoard, type PieceColor, type PieceType} from "./board.js";
 import fs from "fs";
 import readline from "readline";
 import { json } from "stream/consumers";
