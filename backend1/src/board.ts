@@ -1,5 +1,6 @@
-﻿export type PieceColor = "w" | "b"
-export type PieceType = 
+﻿export type PieceColor = "w" | "b";
+
+export type PieceType =
     | "pawn"
     | "rook"
     | "bishop"
@@ -8,38 +9,37 @@ export type PieceType =
     | "queen";
 
 
+// --------------------
+// PIECE
+// --------------------
 
-// Piece class for creating board
 export class Piece {
     color: PieceColor;
     type: PieceType;
 
     constructor(color: PieceColor, type: PieceType) {
-        this.color = color
-        this.type = type
+        this.color = color;
+        this.type = type;
     }
-
-
 }
 
 
-//  This board is different from chess.js.board
+// --------------------
+// BOARD DATA
+// --------------------
+
 export const board = new Map<string, Piece>();
 
-export function addPiece(square: string, piece: Piece){
-    board.set(square, piece)
+export function addPiece(square: string, piece: Piece) {
+    board.set(square, piece);
 }
 
-export function removePiece(square: string){
-    board.delete(square)
+export function removePiece(square: string) {
+    board.delete(square);
 }
 
-
-
-export function getPiece(square: string){
-
-        return board.get(square) ;
-
+export function getPiece(square: string) {
+    return board.get(square);
 }
 
 export function getBoard() {
@@ -47,17 +47,31 @@ export function getBoard() {
 }
 
 
-
-const files: string[] = ["a", "b", "c", "d", "e", "f", "g", "h"]
+// --------------------
+// DRAG STATE
+// --------------------
 
 let draggedFrom: string | null = null;
 
+// Used when dragging a piece from the stock
+let draggedStockPiece: Piece | null = null;
 
 
-// REQUIRES: nothing
-// MODIFIES: index.html
-// EFFECTS: Creates a board with DOM manipulation. For each square on a board, it checks whether
-// a piece exists in the board hashamp and displays the piece on the board if it exsits. 
+// --------------------
+// BOARD
+// --------------------
+
+const files: string[] = [
+    "a",
+    "b",
+    "c",
+    "d",
+    "e",
+    "f",
+    "g",
+    "h",
+];
+
 export function createBoard() {
     const htmlboard = document.getElementById("board");
 
@@ -67,80 +81,167 @@ export function createBoard() {
 
     htmlboard.innerHTML = "";
 
-    for (let i: number = 8; i > 0 ; i--) {
-        
+    for (let rank = 8; rank > 0; rank--) {
         for (const file of files) {
-            const squareName: string = file + i;
+            const squareName = file + rank;
+
             const piece = getPiece(squareName);
-            let square_color: string = "black";
 
-            // Logic: get letter position, ie A-> 1, B -> 2
-            // if letterposition + row is even then the square is black else is white
-            const letterposition = file.charCodeAt(0) - 96;
-            if ((letterposition + i) % 2 === 0) {
-                square_color = "black";
+            const letterPosition = file.charCodeAt(0) - 96;
 
+            let squareColor: string;
 
-            }  else {
-                square_color = "white";
-
-                
+            if ((letterPosition + rank) % 2 === 0) {
+                squareColor = "black";
+            } else {
+                squareColor = "white";
             }
 
             const square = document.createElement("div");
-            square.classList.add(square_color + "-square");
+
+            square.classList.add(squareColor + "-square");
             square.dataset.square = squareName;
+
+
+            // --------------------
+            // ALLOW DROP
+            // --------------------
 
             square.addEventListener("dragover", (event) => {
                 event.preventDefault();
+
                 square.classList.add("drop-target");
             });
+
 
             square.addEventListener("dragleave", () => {
                 square.classList.remove("drop-target");
             });
 
+
+            // --------------------
+            // DROP
+            // --------------------
+
             square.addEventListener("drop", (event) => {
                 event.preventDefault();
+
                 square.classList.remove("drop-target");
 
-                if (draggedFrom === null || draggedFrom === squareName) {
+
+                // --------------------
+                // CASE 1:
+                // Piece came from stock
+                // --------------------
+
+                if (draggedStockPiece !== null) {
+                    addPiece(
+                        squareName,
+                        new Piece(
+                            draggedStockPiece.color,
+                            draggedStockPiece.type
+                        )
+                    );
+
+                    draggedStockPiece = null;
                     draggedFrom = null;
+
+                    createBoard();
+
                     return;
                 }
+
+
+                // --------------------
+                // CASE 2:
+                // Piece came from board
+                // --------------------
+
+                if (
+                    draggedFrom === null ||
+                    draggedFrom === squareName
+                ) {
+                    draggedFrom = null;
+
+                    return;
+                }
+
 
                 const draggedPiece = getPiece(draggedFrom);
 
+
                 if (draggedPiece === undefined) {
                     draggedFrom = null;
+
                     return;
                 }
 
+
+                // Put piece on new square
                 addPiece(squareName, draggedPiece);
+
+                // Remove from old square
                 removePiece(draggedFrom);
+
+
                 draggedFrom = null;
+
                 createBoard();
             });
 
+
+            // --------------------
+            // DISPLAY PIECE
+            // --------------------
+
             if (piece !== undefined) {
-                const selectedPieceType: string = piece.type;
-                const selectedPiece = document.createElement("img");
+                const selectedPiece =
+                    document.createElement("img");
+
                 selectedPiece.classList.add("piece");
+
                 selectedPiece.draggable = true;
 
-                selectedPiece.addEventListener("dragstart", () => {
-                    draggedFrom = squareName;
-                    selectedPiece.classList.add("dragging");
-                });
 
-                selectedPiece.addEventListener("dragend", () => {
-                    draggedFrom = null;
-                    selectedPiece.classList.remove("dragging");
-                });
+                selectedPiece.src =
+                    `../backend1/assets/pieces-basic-svg/` +
+                    `${piece.type}-${piece.color}.svg`;
 
-                selectedPiece.src = `../backend1/assets/pieces-basic-svg/${selectedPieceType}-${piece.color}.svg`;
+
+                // --------------------
+                // DRAG PIECE FROM BOARD
+                // --------------------
+
+                selectedPiece.addEventListener(
+                    "dragstart",
+                    () => {
+                        draggedFrom = squareName;
+
+                        // We know we're not dragging from stock
+                        draggedStockPiece = null;
+
+                        selectedPiece.classList.add(
+                            "dragging"
+                        );
+                    }
+                );
+
+
+                selectedPiece.addEventListener(
+                    "dragend",
+                    () => {
+                        draggedFrom = null;
+
+                        selectedPiece.classList.remove(
+                            "dragging"
+                        );
+                    }
+                );
+
+
                 square.append(selectedPiece);
             }
+
 
             htmlboard.append(square);
         }
@@ -148,6 +249,9 @@ export function createBoard() {
 }
 
 
+// --------------------
+// PIECE STOCK
+// --------------------
 
 export function createStock() {
     const stock = document.getElementById("stock");
@@ -158,44 +262,93 @@ export function createStock() {
 
     stock.innerHTML = "";
 
+
     const pieceTypes: PieceType[] = [
         "pawn",
         "knight",
         "bishop",
         "rook",
         "queen",
-        "king"
+        "king",
     ];
 
-    let i: number  = 6;
-    
+
+    // --------------------
+    // WHITE PIECES
+    // --------------------
+
     for (const pieceType of pieceTypes) {
-        const square = document.createElement("div");
-        if (i % 2 === 0) {square.classList.add("white-square");} else {square.classList.add("black-square");}
-
-        const image = document.createElement("img");
-        image.classList.add("piece");
-
-        image.src =
-            `../backend1/assets/pieces-basic-svg/${pieceType}-w.svg`;
-
-        square.append(image);
-        stock.append(square);
+        createStockPiece(
+            stock,
+            pieceType,
+            "w"
+        );
+    }
 
 
+    // --------------------
+    // BLACK PIECES
+    // --------------------
 
-
-        
-    
-        i--;
+    for (const pieceType of pieceTypes) {
+        createStockPiece(
+            stock,
+            pieceType,
+            "b"
+        );
     }
 }
 
 
+// --------------------
+// CREATE ONE STOCK PIECE
+// --------------------
 
-//
+function createStockPiece(
+    stock: HTMLElement,
+    pieceType: PieceType,
+    color: PieceColor
+) {
+    const square = document.createElement("div");
+
+    square.classList.add("stock-square");
 
 
-//
+    const image = document.createElement("img");
 
-//
+    image.classList.add("piece");
+
+    image.draggable = true;
+
+
+    image.src =
+        `../backend1/assets/pieces-basic-svg/` +
+        `${pieceType}-${color}.svg`;
+
+
+    // --------------------
+    // DRAG FROM STOCK
+    // --------------------
+
+    image.addEventListener("dragstart", () => {
+        draggedStockPiece =
+            new Piece(color, pieceType);
+
+        // Not coming from a board square
+        draggedFrom = null;
+
+        image.classList.add("dragging");
+    });
+
+
+    image.addEventListener("dragend", () => {
+        draggedStockPiece = null;
+
+        image.classList.remove("dragging");
+    });
+
+
+    square.append(image);
+
+    stock.append(square);
+}

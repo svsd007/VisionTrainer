@@ -1,4 +1,6 @@
-// Piece class for creating board
+// --------------------
+// PIECE
+// --------------------
 export class Piece {
     color;
     type;
@@ -7,7 +9,9 @@ export class Piece {
         this.type = type;
     }
 }
-//  This board is different from chess.js.board
+// --------------------
+// BOARD DATA
+// --------------------
 export const board = new Map();
 export function addPiece(square, piece) {
     board.set(square, piece);
@@ -21,35 +25,49 @@ export function getPiece(square) {
 export function getBoard() {
     return board;
 }
-const files = ["a", "b", "c", "d", "e", "f", "g", "h"];
+// --------------------
+// DRAG STATE
+// --------------------
 let draggedFrom = null;
-// REQUIRES: nothing
-// MODIFIES: index.html
-// EFFECTS: Creates a board with DOM manipulation. For each square on a board, it checks whether
-// a piece exists in the board hashamp and displays the piece on the board if it exsits. 
+// Used when dragging a piece from the stock
+let draggedStockPiece = null;
+// --------------------
+// BOARD
+// --------------------
+const files = [
+    "a",
+    "b",
+    "c",
+    "d",
+    "e",
+    "f",
+    "g",
+    "h",
+];
 export function createBoard() {
     const htmlboard = document.getElementById("board");
     if (htmlboard === null) {
         return;
     }
     htmlboard.innerHTML = "";
-    for (let i = 8; i > 0; i--) {
+    for (let rank = 8; rank > 0; rank--) {
         for (const file of files) {
-            const squareName = file + i;
+            const squareName = file + rank;
             const piece = getPiece(squareName);
-            let square_color = "black";
-            // Logic: get letter position, ie A-> 1, B -> 2
-            // if letterposition + row is even then the square is black else is white
-            const letterposition = file.charCodeAt(0) - 96;
-            if ((letterposition + i) % 2 === 0) {
-                square_color = "black";
+            const letterPosition = file.charCodeAt(0) - 96;
+            let squareColor;
+            if ((letterPosition + rank) % 2 === 0) {
+                squareColor = "black";
             }
             else {
-                square_color = "white";
+                squareColor = "white";
             }
             const square = document.createElement("div");
-            square.classList.add(square_color + "-square");
+            square.classList.add(squareColor + "-square");
             square.dataset.square = squareName;
+            // --------------------
+            // ALLOW DROP
+            // --------------------
             square.addEventListener("dragover", (event) => {
                 event.preventDefault();
                 square.classList.add("drop-target");
@@ -57,10 +75,29 @@ export function createBoard() {
             square.addEventListener("dragleave", () => {
                 square.classList.remove("drop-target");
             });
+            // --------------------
+            // DROP
+            // --------------------
             square.addEventListener("drop", (event) => {
                 event.preventDefault();
                 square.classList.remove("drop-target");
-                if (draggedFrom === null || draggedFrom === squareName) {
+                // --------------------
+                // CASE 1:
+                // Piece came from stock
+                // --------------------
+                if (draggedStockPiece !== null) {
+                    addPiece(squareName, new Piece(draggedStockPiece.color, draggedStockPiece.type));
+                    draggedStockPiece = null;
+                    draggedFrom = null;
+                    createBoard();
+                    return;
+                }
+                // --------------------
+                // CASE 2:
+                // Piece came from board
+                // --------------------
+                if (draggedFrom === null ||
+                    draggedFrom === squareName) {
                     draggedFrom = null;
                     return;
                 }
@@ -69,31 +106,45 @@ export function createBoard() {
                     draggedFrom = null;
                     return;
                 }
+                // Put piece on new square
                 addPiece(squareName, draggedPiece);
+                // Remove from old square
                 removePiece(draggedFrom);
                 draggedFrom = null;
                 createBoard();
             });
+            // --------------------
+            // DISPLAY PIECE
+            // --------------------
             if (piece !== undefined) {
-                const selectedPieceType = piece.type;
                 const selectedPiece = document.createElement("img");
                 selectedPiece.classList.add("piece");
                 selectedPiece.draggable = true;
+                selectedPiece.src =
+                    `../backend1/assets/pieces-basic-svg/` +
+                        `${piece.type}-${piece.color}.svg`;
+                // --------------------
+                // DRAG PIECE FROM BOARD
+                // --------------------
                 selectedPiece.addEventListener("dragstart", () => {
                     draggedFrom = squareName;
+                    // We know we're not dragging from stock
+                    draggedStockPiece = null;
                     selectedPiece.classList.add("dragging");
                 });
                 selectedPiece.addEventListener("dragend", () => {
                     draggedFrom = null;
                     selectedPiece.classList.remove("dragging");
                 });
-                selectedPiece.src = `../backend1/assets/pieces-basic-svg/${selectedPieceType}-${piece.color}.svg`;
                 square.append(selectedPiece);
             }
             htmlboard.append(square);
         }
     }
 }
+// --------------------
+// PIECE STOCK
+// --------------------
 export function createStock() {
     const stock = document.getElementById("stock");
     if (stock === null) {
@@ -106,27 +157,48 @@ export function createStock() {
         "bishop",
         "rook",
         "queen",
-        "king"
+        "king",
     ];
-    let i = 6;
+    // --------------------
+    // WHITE PIECES
+    // --------------------
     for (const pieceType of pieceTypes) {
-        const square = document.createElement("div");
-        if (i % 2 === 0) {
-            square.classList.add("white-square");
-        }
-        else {
-            square.classList.add("black-square");
-        }
-        const image = document.createElement("img");
-        image.classList.add("piece");
-        image.src =
-            `../backend1/assets/pieces-basic-svg/${pieceType}-w.svg`;
-        square.append(image);
-        stock.append(square);
-        i--;
+        createStockPiece(stock, pieceType, "w");
+    }
+    // --------------------
+    // BLACK PIECES
+    // --------------------
+    for (const pieceType of pieceTypes) {
+        createStockPiece(stock, pieceType, "b");
     }
 }
-//
-//
-//
+// --------------------
+// CREATE ONE STOCK PIECE
+// --------------------
+function createStockPiece(stock, pieceType, color) {
+    const square = document.createElement("div");
+    square.classList.add("stock-square");
+    const image = document.createElement("img");
+    image.classList.add("piece");
+    image.draggable = true;
+    image.src =
+        `../backend1/assets/pieces-basic-svg/` +
+            `${pieceType}-${color}.svg`;
+    // --------------------
+    // DRAG FROM STOCK
+    // --------------------
+    image.addEventListener("dragstart", () => {
+        draggedStockPiece =
+            new Piece(color, pieceType);
+        // Not coming from a board square
+        draggedFrom = null;
+        image.classList.add("dragging");
+    });
+    image.addEventListener("dragend", () => {
+        draggedStockPiece = null;
+        image.classList.remove("dragging");
+    });
+    square.append(image);
+    stock.append(square);
+}
 //# sourceMappingURL=board.js.map
