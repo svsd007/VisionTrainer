@@ -10,16 +10,73 @@
         <script type = "module" src = "../backend1/dist/index.js"> </script>
     </head>
     <body>
+        <main class = "app-shell">
+            <header class = "app-header">
+                <div>
+                    <p class = "eyebrow">Memory board</p>
+                    <h1>Chess Vision Trainer</h1>
+                </div>
+            </header>
 
-        <div id = "board"> </div>
-        <div id = "stock"> </div>
-        <!-- Need to work on this area and make it look better-->
-        <button id = "check">Check</button>
-        <button id = "reset">Reset</button>
+            <section class = "trainer-layout">
+                <div class = "board-stage">
+                    <div class = "board-wrap" aria-label = "Chess board">
+                        <div class = "rank-coordinates" aria-hidden = "true">
+                            <span>8</span>
+                            <span>7</span>
+                            <span>6</span>
+                            <span>5</span>
+                            <span>4</span>
+                            <span>3</span>
+                            <span>2</span>
+                            <span>1</span>
+                        </div>
+                        <div id = "board"> </div>
+                        <div class = "file-coordinates" aria-hidden = "true">
+                            <span>a</span>
+                            <span>b</span>
+                            <span>c</span>
+                            <span>d</span>
+                            <span>e</span>
+                            <span>f</span>
+                            <span>g</span>
+                            <span>h</span>
+                        </div>
+                    </div>
+                    <p id = "timer-status" aria-live = "polite"></p>
+                </div>
 
+                <aside class = "side-panel">
+                    <div id = "controls">
+                        <label for = "hide-seconds">Hide after</label>
+                        <div class = "inline-control">
+                            <input id = "hide-seconds" type = "number" min = "0" step = "0.5" value = "5">
+                            <span>sec</span>
+                        </div>
 
-        <p>
-            <a href = "https://greenchess.net/info.php?item=downloads">Pieces from greenchess</a>
-        </p>
+                        <label for = "piece-count-filter">Pieces</label>
+                        <select id = "piece-count-filter">
+                            <option value = "under-10">&lt;10</option>
+                            <option value = "10-20" selected>10-20</option>
+                            <option value = "20-plus">20+</option>
+                        </select>
+
+                        <button id = "start-hide" class = "primary-action">Next Position</button>
+                        <div class = "button-row">
+                            <button id = "hint" disabled>Hint</button>
+                            <button id = "check">Check</button>
+                            <button id = "reset">Reset</button>
+                        </div>
+                    </div>
+
+                    <div class = "stock-panel">
+                        <h2>Pieces</h2>
+                        <div id = "stock"> </div>
+                    </div>
+
+                    <a class = "source-link" href = "https://greenchess.net/info.php?item=downloads">Pieces from greenchess</a>
+                </aside>
+            </section>
+        </main>
     </body>
 </html>

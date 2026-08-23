@@ -1,59 +1,54 @@
-import { Piece, addPiece, board, createBoard, type PieceColor, type PieceType} from "./board.js";
 import fs from "fs";
-import readline from "readline";
-import { json } from "stream/consumers";
-import { compileFunction } from "vm";
 
 
 const inputPath = "./data/processed/positions.jsonl";
-const indexPath = "./data/processed/positions.idx";
+const indexPaths = {
+    all: "./data/processed/positions.idx",
+    "under-10": "./data/processed/positions-under-10.idx",
+    "10-20": "./data/processed/positions-10-20.idx",
+    "20-plus": "./data/processed/positions-20-plus.idx",
+} as const;
 
-const offsetText = fs.readFileSync(indexPath, "utf-8");
+export type PieceCountFilter = keyof typeof indexPaths;
 
-const offsets = offsetText
-    .split("\n")
-    .filter((line) => line !== "")
-    .map(Number);
+const allOffsets = readOffsets(indexPaths.all);
+const offsetEnds = new Map<number, number>();
+const fileSize = fs.statSync(inputPath).size;
 
-export async function getPos() {
+for (let index = 0; index < allOffsets.length; index++) {
+    const offset = allOffsets[index];
+    const nextOffset = allOffsets[index + 1] ?? fileSize;
 
-    board.clear();
-    const randomIndex = Math.floor(Math.random() * (offsets.length - 1));
-    const offsetStart = offsets [randomIndex];
-    const offsetEnd = offsets [randomIndex + 1];
+    if (offset !== undefined) {
+        offsetEnds.set(offset, nextOffset);
+    }
+}
+
+const offsetsByFilter = new Map<PieceCountFilter, number[]>();
+
+for (const filter of Object.keys(indexPaths) as PieceCountFilter[]) {
+    offsetsByFilter.set(filter, readOffsets(indexPaths[filter]));
+}
+
+export async function getPos(filter: PieceCountFilter = "all") {
+    const offsets = offsetsByFilter.get(filter) ?? offsetsByFilter.get("all");
+
+    if (offsets === undefined || offsets.length === 0) {
+        throw new Error("No position offsets found");
+    }
+
+    const randomIndex = Math.floor(Math.random() * offsets.length);
+    const offsetStart = offsets[randomIndex];
 
     if (offsetStart === undefined) {
         throw new Error("No position offset found");
     }
 
+    const offsetEnd = offsetEnds.get(offsetStart);
+
     if (offsetEnd === undefined) {
         throw new Error("No position offset found");
     }
-
-
-    const stream = fs.createReadStream(inputPath, "utf-8");
-
-    const read1 = readline.createInterface({
-        input: stream,
-        crlfDelay: Infinity
-    })
-
-    let currentindex = 0;
-    //Why do i have to use await?
-    let game = "";
-
-    // for await (const line of read1) {
-
-    //     if (offsetStart === currentindex) {
-    //         game += line;
-    //         break;
-    //     } else {
-    //         currentindex += Buffer.byteLength(line + "\n", "utf-8");
-    //     }
-
-    // }
-
-
 
     const length = offsetEnd - offsetStart;
 
@@ -72,43 +67,13 @@ export async function getPos() {
 
     const line = buffer.toString("utf-8").trim();
 
-    console.log(line);
-
-
-    const position = JSON.parse(line);
-
-
-    for (const square of position.board) {
-        const Ptype = square.type;
-        let piece: PieceType;
-        switch (true) {
-            case (Ptype === "b"):
-                piece = "bishop";
-                break;
-            case (Ptype == "n"):
-                piece = "knight";
-                break;
-            case (Ptype == "k"):
-                piece = "king";
-                break;
-            case (Ptype == "q"):
-                piece = "queen";
-                break;
-            case (Ptype == "r"):
-                piece = "rook";
-                break;
-            case (Ptype == "p"):
-                piece = "pawn";
-                break;
-        }
-        const thisPiece = new Piece(square.color!, piece!);
-        addPiece(square.square, thisPiece);
-
-        
-    }
-    
-    return position;
+    return JSON.parse(line);
 }
 
-
+function readOffsets(indexPath: string) {
+    return fs.readFileSync(indexPath, "utf-8")
+        .split("\n")
+        .filter((line) => line !== "")
+        .map(Number);
+}
 

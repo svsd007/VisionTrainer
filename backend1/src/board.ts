@@ -56,6 +56,17 @@ let draggedFrom: string | null = null;
 // Used when dragging a piece from the stock
 let draggedStockPiece: Piece | null = null;
 
+let interactionLocked = false;
+
+export function setInteractionLocked(locked: boolean) {
+    interactionLocked = locked;
+
+    for (const piece of document.querySelectorAll<HTMLImageElement>(".piece")) {
+        piece.draggable = !interactionLocked;
+        piece.classList.toggle("locked-piece", interactionLocked);
+    }
+}
+
 
 // --------------------
 // BOARD
@@ -99,7 +110,7 @@ export function createBoard() {
 
             const square = document.createElement("div");
 
-            square.classList.add(squareColor + "-square");
+            square.classList.add("board-square", squareColor + "-square");
             square.dataset.square = squareName;
 
 
@@ -108,6 +119,10 @@ export function createBoard() {
             // --------------------
 
             square.addEventListener("dragover", (event) => {
+                if (interactionLocked) {
+                    return;
+                }
+
                 event.preventDefault();
 
                 square.classList.add("drop-target");
@@ -124,6 +139,10 @@ export function createBoard() {
             // --------------------
 
             square.addEventListener("drop", (event) => {
+                if (interactionLocked) {
+                    return;
+                }
+
                 event.preventDefault();
 
                 square.classList.remove("drop-target");
@@ -199,8 +218,9 @@ export function createBoard() {
                     document.createElement("img");
 
                 selectedPiece.classList.add("piece");
+                selectedPiece.classList.toggle("locked-piece", interactionLocked);
 
-                selectedPiece.draggable = true;
+                selectedPiece.draggable = !interactionLocked;
 
 
                 selectedPiece.src =
@@ -214,7 +234,12 @@ export function createBoard() {
 
                 selectedPiece.addEventListener(
                     "dragstart",
-                    () => {
+                    (event) => {
+                        if (interactionLocked) {
+                            event.preventDefault();
+                            return;
+                        }
+
                         draggedFrom = squareName;
 
                         // We know we're not dragging from stock
@@ -229,7 +254,19 @@ export function createBoard() {
 
                 selectedPiece.addEventListener(
                     "dragend",
-                    () => {
+                    (event) => {
+                        if (interactionLocked) {
+                            return;
+                        }
+
+                        if (
+                            draggedFrom !== null &&
+                            isOutsideBoard(event.clientX, event.clientY)
+                        ) {
+                            removePiece(draggedFrom);
+                            createBoard();
+                        }
+
                         draggedFrom = null;
 
                         selectedPiece.classList.remove(
@@ -317,8 +354,9 @@ function createStockPiece(
     const image = document.createElement("img");
 
     image.classList.add("piece");
+    image.classList.toggle("locked-piece", interactionLocked);
 
-    image.draggable = true;
+    image.draggable = !interactionLocked;
 
 
     image.src =
@@ -330,7 +368,12 @@ function createStockPiece(
     // DRAG FROM STOCK
     // --------------------
 
-    image.addEventListener("dragstart", () => {
+    image.addEventListener("dragstart", (event) => {
+        if (interactionLocked) {
+            event.preventDefault();
+            return;
+        }
+
         draggedStockPiece =
             new Piece(color, pieceType);
 
@@ -351,4 +394,21 @@ function createStockPiece(
     square.append(image);
 
     stock.append(square);
+}
+
+function isOutsideBoard(clientX: number, clientY: number) {
+    const htmlboard = document.getElementById("board");
+
+    if (htmlboard === null) {
+        return false;
+    }
+
+    const boardBounds = htmlboard.getBoundingClientRect();
+
+    return (
+        clientX < boardBounds.left ||
+        clientX > boardBounds.right ||
+        clientY < boardBounds.top ||
+        clientY > boardBounds.bottom
+    );
 }

@@ -31,6 +31,14 @@ export function getBoard() {
 let draggedFrom = null;
 // Used when dragging a piece from the stock
 let draggedStockPiece = null;
+let interactionLocked = false;
+export function setInteractionLocked(locked) {
+    interactionLocked = locked;
+    for (const piece of document.querySelectorAll(".piece")) {
+        piece.draggable = !interactionLocked;
+        piece.classList.toggle("locked-piece", interactionLocked);
+    }
+}
 // --------------------
 // BOARD
 // --------------------
@@ -63,12 +71,15 @@ export function createBoard() {
                 squareColor = "white";
             }
             const square = document.createElement("div");
-            square.classList.add(squareColor + "-square");
+            square.classList.add("board-square", squareColor + "-square");
             square.dataset.square = squareName;
             // --------------------
             // ALLOW DROP
             // --------------------
             square.addEventListener("dragover", (event) => {
+                if (interactionLocked) {
+                    return;
+                }
                 event.preventDefault();
                 square.classList.add("drop-target");
             });
@@ -79,6 +90,9 @@ export function createBoard() {
             // DROP
             // --------------------
             square.addEventListener("drop", (event) => {
+                if (interactionLocked) {
+                    return;
+                }
                 event.preventDefault();
                 square.classList.remove("drop-target");
                 // --------------------
@@ -119,20 +133,33 @@ export function createBoard() {
             if (piece !== undefined) {
                 const selectedPiece = document.createElement("img");
                 selectedPiece.classList.add("piece");
-                selectedPiece.draggable = true;
+                selectedPiece.classList.toggle("locked-piece", interactionLocked);
+                selectedPiece.draggable = !interactionLocked;
                 selectedPiece.src =
                     `../backend1/assets/pieces-basic-svg/` +
                         `${piece.type}-${piece.color}.svg`;
                 // --------------------
                 // DRAG PIECE FROM BOARD
                 // --------------------
-                selectedPiece.addEventListener("dragstart", () => {
+                selectedPiece.addEventListener("dragstart", (event) => {
+                    if (interactionLocked) {
+                        event.preventDefault();
+                        return;
+                    }
                     draggedFrom = squareName;
                     // We know we're not dragging from stock
                     draggedStockPiece = null;
                     selectedPiece.classList.add("dragging");
                 });
-                selectedPiece.addEventListener("dragend", () => {
+                selectedPiece.addEventListener("dragend", (event) => {
+                    if (interactionLocked) {
+                        return;
+                    }
+                    if (draggedFrom !== null &&
+                        isOutsideBoard(event.clientX, event.clientY)) {
+                        removePiece(draggedFrom);
+                        createBoard();
+                    }
                     draggedFrom = null;
                     selectedPiece.classList.remove("dragging");
                 });
@@ -180,14 +207,19 @@ function createStockPiece(stock, pieceType, color) {
     square.classList.add("stock-square");
     const image = document.createElement("img");
     image.classList.add("piece");
-    image.draggable = true;
+    image.classList.toggle("locked-piece", interactionLocked);
+    image.draggable = !interactionLocked;
     image.src =
         `../backend1/assets/pieces-basic-svg/` +
             `${pieceType}-${color}.svg`;
     // --------------------
     // DRAG FROM STOCK
     // --------------------
-    image.addEventListener("dragstart", () => {
+    image.addEventListener("dragstart", (event) => {
+        if (interactionLocked) {
+            event.preventDefault();
+            return;
+        }
         draggedStockPiece =
             new Piece(color, pieceType);
         // Not coming from a board square
@@ -200,5 +232,16 @@ function createStockPiece(stock, pieceType, color) {
     });
     square.append(image);
     stock.append(square);
+}
+function isOutsideBoard(clientX, clientY) {
+    const htmlboard = document.getElementById("board");
+    if (htmlboard === null) {
+        return false;
+    }
+    const boardBounds = htmlboard.getBoundingClientRect();
+    return (clientX < boardBounds.left ||
+        clientX > boardBounds.right ||
+        clientY < boardBounds.top ||
+        clientY > boardBounds.bottom);
 }
 //# sourceMappingURL=board.js.map

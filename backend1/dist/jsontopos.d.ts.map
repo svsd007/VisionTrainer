@@ -1,1 +1,1 @@
-{"version":3,"file":"jsontopos.d.ts","sourceRoot":"","sources":["../src/jsontopos.ts"],"names":[],"mappings":"AAiBA,wBAAsB,MAAM,iBA6F3B"}
+{"version":3,"file":"jsontopos.d.ts","sourceRoot":"","sources":["../src/jsontopos.ts"],"names":[],"mappings":"AAIA,QAAA,MAAM,UAAU;aACZ,GAAG,EAAE,gCAAgC;aACrC,UAAU,EAAE,yCAAyC;aACrD,OAAO,EAAE,sCAAsC;aAC/C,SAAS,EAAE,wCAAwC;CAC7C,CAAC;AAEX,MAAM,MAAM,gBAAgB,GAAG,MAAM,OAAO,UAAU,CAAC;AAqBvD,wBAAsB,MAAM,CAAC,MAAM,GAAE,gBAAwB,gBAsC5D"}

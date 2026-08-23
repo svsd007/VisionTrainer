@@ -10,6 +10,7 @@ export declare function addPiece(square: string, piece: Piece): void;
 export declare function removePiece(square: string): void;
 export declare function getPiece(square: string): Piece | undefined;
 export declare function getBoard(): Map<string, Piece>;
+export declare function setInteractionLocked(locked: boolean): void;
 export declare function createBoard(): void;
 export declare function createStock(): void;
 //# sourceMappingURL=board.d.ts.map
